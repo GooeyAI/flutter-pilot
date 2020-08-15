@@ -30,12 +30,6 @@ which means you can't import flutter, and any code that uses it.
 
 Pilot runs directly on the target device.
 
-```dart
-import 'package:pilot/pilot.dart';
-
-counter
-```
-
 - Find widgets by their type, directly
 
 ```dart

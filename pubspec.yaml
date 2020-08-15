@@ -1,6 +1,6 @@
 name: pilot
 description: A new Flutter package project.
-version: 0.0.1
+version: 0.0.2
 author: Dev Aggarwal <devxpy@gmail.com>
 homepage: https://github.com/dara-network/flutter-pilot
 
@@ -16,6 +16,7 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+
 
 
 # For information on the generic Dart part of this file, see the

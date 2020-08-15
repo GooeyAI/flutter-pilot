@@ -33,6 +33,6 @@ extension PilotCommonFinders on CommonFinders {
   }
 
   Finder byWidgetType<T extends Widget>() {
-    return find.byElementPredicate((e) => e.widget.runtimeType == T);
+    return find.byWidgetPredicate((widget) => widget is T);
   }
 }

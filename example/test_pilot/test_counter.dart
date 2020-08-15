@@ -3,12 +3,14 @@ import 'package:flutter/material.dart'; // <-- easy access to flutter
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pilot/pilot.dart';
 
-main() {
+main() async {
   // run your app, like you normally would
   app.main();
 
-  // then, run the tests
+  // setup pilot (optionally, do this in flutter_test's setUpAll)
+  await pilot.setUp();
 
+  // then, run the tests
   group('Counter App', () {
     var addBtn = find.byIcon(Icons.add);
 

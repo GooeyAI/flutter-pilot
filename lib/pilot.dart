@@ -1,7 +1,6 @@
 library pilot;
 
-export 'package:flutter_driver/src/common/find.dart' show find;
-
+export 'src/common_finders.dart';
 export 'src/extension.dart';
-export 'src/finder.dart';
+export 'src/pilot.dart' show pilot;
 export 'src/wait_conditions.dart';

@@ -1,5 +1,3 @@
-/// Stolen code from flutter_test/lib/src/wait_conditions.dart
-
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';

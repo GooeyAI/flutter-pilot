@@ -1,108 +1,38 @@
-/// Stolen code from flutter_driver/lib/src/extension/extension.dart
-
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RendererBinding, SemanticsHandle;
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_driver/src/common/diagnostics_tree.dart';
 import 'package:flutter_driver/src/common/geometry.dart';
-import 'package:flutter_driver/src/common/layer_tree.dart';
-import 'package:flutter_driver/src/common/render_tree.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-class Pilot {
-  /// With [frameSync] enabled, Pilot will wait to perform an action
-  /// until there are no pending frames in the app under test.
-  static var frameSync = true;
-
-  static var testTextInput = TestTextInput();
-  static var prober = LiveWidgetController(WidgetsBinding.instance);
-
-  static SemanticsHandle semantics;
-
-  static bool get semanticsIsEnabled =>
-      RendererBinding.instance.pipelineOwner.semanticsOwner != null;
-
-  static Future<bool> setSemantics(bool enabled) async {
-    final bool semanticsWasEnabled = semanticsIsEnabled;
-    if (enabled && semantics == null) {
-      semantics = RendererBinding.instance.pipelineOwner.ensureSemantics();
-      if (!semanticsWasEnabled) {
-        // wait for the first frame where semantics is enabled.
-        final Completer<void> completer = Completer<void>();
-        SchedulerBinding.instance.addPostFrameCallback((Duration d) {
-          completer.complete();
-        });
-        await completer.future;
-      }
-    } else if (!enabled && semantics != null) {
-      semantics.dispose();
-      semantics = null;
-    }
-    return semanticsWasEnabled != semanticsIsEnabled;
-  }
-
-  static LayerTree getLayerTree() {
-    return LayerTree(
-      RendererBinding.instance?.renderView?.debugLayer?.toStringDeep(),
-    );
-  }
-
-  static RenderTree getRenderTree() {
-    return RenderTree(RendererBinding.instance?.renderView?.toStringDeep());
-  }
-
-  // Waits until at the end of a frame the provided [condition] is [true].
-  static Future<void> waitUntilFrame(
-    bool condition(), [
-    Completer<void> completer,
-  ]) async {
-    completer ??= Completer<void>();
-    if (!condition()) {
-      SchedulerBinding.instance.addPostFrameCallback((Duration timestamp) {
-        waitUntilFrame(condition, completer);
-      });
-    } else {
-      completer.complete();
-    }
-    await completer.future;
-  }
-
-  static Future<void> waitForTransientCallbacks() async {
-    await Pilot.waitUntilFrame(
-      () => SchedulerBinding.instance.transientCallbackCount == 0,
-    );
-  }
-}
+import 'package:pilot/src/pilot.dart';
 
 extension PilotFinder on Finder {
   /// Runs [finder] repeatedly until it finds one or more [Element]s.
   Future<void> wait() async {
-    if (Pilot.frameSync) await Pilot.waitForTransientCallbacks();
+    if (pilot.frameSync) await pilot.waitForTransientCallbacks();
 
-    await Pilot.waitUntilFrame(() => evaluate().isNotEmpty);
+    await pilot.waitUntilFrame(() => evaluate().isNotEmpty);
 
-    if (Pilot.frameSync) await Pilot.waitForTransientCallbacks();
+    if (pilot.frameSync) await pilot.waitForTransientCallbacks();
   }
 
   /// Runs [finder] repeatedly until it finds zero [Element]s.
   Future<void> waitForAbsent() async {
-    if (Pilot.frameSync) await Pilot.waitForTransientCallbacks();
+    if (pilot.frameSync) await pilot.waitForTransientCallbacks();
 
-    await Pilot.waitUntilFrame(() => evaluate().isEmpty);
+    await pilot.waitUntilFrame(() => evaluate().isEmpty);
 
-    if (Pilot.frameSync) await Pilot.waitForTransientCallbacks();
+    if (pilot.frameSync) await pilot.waitForTransientCallbacks();
   }
 
   Future<void> tap() async {
     await wait();
-    await Pilot.prober.tap(this);
+    await pilot.prober.tap(this);
   }
 
   Future<SemanticsNode> getSemanticsNode() async {
@@ -177,22 +107,22 @@ extension PilotFinder on Finder {
         duration.inMicroseconds * frequency ~/ Duration.microsecondsPerSecond;
     final Offset delta = Offset(dx, dy) / totalMoves.toDouble();
     final Duration pause = duration ~/ totalMoves;
-    final Offset startLocation = Pilot.prober.getCenter(this);
+    final Offset startLocation = pilot.prober.getCenter(this);
     Offset currentLocation = startLocation;
     final TestPointer pointer = TestPointer(1);
     final HitTestResult hitTest = HitTestResult();
 
-    Pilot.prober.binding.hitTest(hitTest, startLocation);
-    Pilot.prober.binding.dispatchEvent(pointer.down(startLocation), hitTest);
+    pilot.prober.binding.hitTest(hitTest, startLocation);
+    pilot.prober.binding.dispatchEvent(pointer.down(startLocation), hitTest);
     await Future<
         void>.value(); // so that down and move don't happen in the same microtask
     for (int moves = 0; moves < totalMoves; moves += 1) {
       currentLocation = currentLocation + delta;
-      Pilot.prober.binding
+      pilot.prober.binding
           .dispatchEvent(pointer.move(currentLocation), hitTest);
       await Future<void>.delayed(pause);
     }
-    Pilot.prober.binding.dispatchEvent(pointer.up(), hitTest);
+    pilot.prober.binding.dispatchEvent(pointer.up(), hitTest);
   }
 
   Future<void> scrollIntoView({double alignment = 0}) async {
@@ -235,17 +165,17 @@ extension PilotFinder on Finder {
 
   Future<void> setTextEntryEmulation(bool enabled) async {
     if (enabled) {
-      Pilot.testTextInput.register();
+      pilot.testTextInput.register();
     } else {
-      Pilot.testTextInput.unregister();
+      pilot.testTextInput.unregister();
     }
   }
 
   Future<void> enterText(String text) async {
-    if (!Pilot.testTextInput.isRegistered) {
+    if (!pilot.testTextInput.isRegistered) {
       throw 'Unable to fulfill `$runtimeType.enterText`. Text emulation is '
           'disabled. You can enable it using `$runtimeType.setTextEntryEmulation`.';
     }
-    Pilot.testTextInput.enterText(text);
+    pilot.testTextInput.enterText(text);
   }
 }

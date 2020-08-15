@@ -32,6 +32,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  // used to uniquely identify the counter text
+  static final counterKey = UniqueKey();
+
   MyHomePage({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -102,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
+              key: MyHomePage.counterKey,
               style: Theme.of(context).textTheme.headline4,
             ),
           ],

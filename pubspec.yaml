@@ -1,8 +1,8 @@
 name: pilot
 description: A new Flutter package project.
 version: 0.0.1
-author:
-homepage:
+author: Dev Aggarwal <devxpy@gmail.com>
+homepage: https://github.com/dara-network/flutter-pilot
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
